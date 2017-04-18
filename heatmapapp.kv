@@ -1,0 +1,100 @@
+#:kivy 1.8.0
+
+<SidePanel>:
+    orientation: 'vertical'
+    spacing: 1
+
+    MenuItem:
+        text: 'Temperature'
+
+    MenuItem:
+        text: 'Humidity'
+
+    MenuItem:
+        text: 'Settings'
+
+<AppActionBar>:
+    pos_hint: {'top':1}
+    ActionView:
+        use_separator: True
+        ActionMenu:
+            title: 'HeatMap'
+            with_previous: False
+            app_icon: './assets/menu.png'
+            on_press: self.menu()
+        ActionOverflow:
+        ActionQuit:
+            text: 'Fine'
+            icon: './assets/close.png'
+            on_press: self.menu()
+
+<MainPanel>:
+    orientation: 'vertical'
+    spacing: 1
+
+    AppActionBar:
+        size_hint: (1., 0.1)
+
+    Label:
+        text: '1) Select temperature/humidity to view data\n\n2) Select settings to change database links and tokens\n\n\nPlease wait for data to load'
+
+<Settings>:
+    orientation: 'vertical'
+    spacing: 1
+
+    AppActionBar:
+        size_hint: (1., 0.1)
+
+    GridLayout:
+        cols: 2
+
+        Label:
+            text: ''
+        Label:
+            text: ''
+        Label:
+            text: 'URL: '
+        TextInput:
+            id: url
+            text: 'https://my-awesome-project-3e36c.firebaseio.com'
+
+        Label:
+            text: 'TOKEN: '
+        TextInput:
+            id: token
+            text: 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
+
+        Button:
+            text: 'Revert to Default'
+            on_press: root.default()
+
+        Button:
+            text: 'Update'
+            on_press: root.update()
+
+
+
+<Humidity>:
+    orientation: 'vertical'
+    spacing: 1
+
+    AppActionBar:
+        size_hint: (1., 0.1)
+
+    Image:
+        id: humIMG
+        source: 'humidity.png'
+        size_hint: (1., 0.9)
+
+<Temperature>:
+    orientation: 'vertical'
+    spacing: 1
+
+    AppActionBar:
+        size_hint: (1., 0.1)
+
+    Image:
+        id: tempIMG
+        source: 'temp.png'
+        size_hint: (1., 0.9)
+

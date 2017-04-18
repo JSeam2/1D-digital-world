@@ -1,51 +1,63 @@
 # -*- coding: utf-8 -*-#
-from kivy.app import App
-from kivy.clock import Clock
-
 #-------------------------------------------------------------------------------
-# Name:        androidApp.py
-# Purpose:     Simple example of a android application skeleton that manages
-#              application menu using ActionBar and SidePanelMenu that slides
-#              over the main panel
-#
-# Author:      Licia Leanza
-#
-# Created:     13-04-2014
+# Adapted from Licia Leanza androidApp.py
 # Copyright:   (c) Licia Leanza: 2014
 # Licence:     GPL v2
 #-------------------------------------------------------------------------------
-
-__author__ = 'licia'
-
-#--------------------------------------------------------------------------
-'''dictionary that contains the correspondance between items descriptions
-and methods that actually implement the specific function and panels to be
-shown instead of the first main_panel
 '''
-SidePanel_AppMenu = {'voce uno':['on_uno',None],
-                     'voce due':['on_due',None],
-                     'voce tre':['on_tre',None],
+Dictionary for menu items. Right is the name of the panel,
+Left is the method to view the panel
+'''
+SidePanel_AppMenu = {'Temperature':['on_temp',None],
+                     'Humidity':['on_hum',None],
+                     'Settings':['on_settings',None],
                      }
 id_AppMenu_METHOD = 0
 id_AppMenu_PANEL = 1
 
+#################
+#     KIVY      #
+#################
 
-#--------------------------------------------------------------------------
 import kivy
 kivy.require('1.8.0')
 
 from kivy.app import App
+
 from kivy.garden.navigationdrawer import NavigationDrawer
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
 from kivy.uix.actionbar import ActionBar, ActionButton, ActionPrevious
-from kivy.properties import  ObjectProperty
 
+from kivy.clock import Clock
+
+# Uncomment for fixed window size
+#from kivy.core.window import Window
+#from kivy.config import Config
+
+# Window settings make non-resizable
+#Window.size = (800, 800)
+#Config.set('graphics', 'resizable', False)
+
+
+#################
+#     Graph     #
+#################
+from Graphing import Graphing
+
+'''
+Global Values
+'''
 RootApp = None
+url = 'https://my-awesome-project-3e36c.firebaseio.com'
+token = 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
 
 class SidePanel(BoxLayout):
-    pass
+    def __init__(self, **kwargs):
+        super(SidePanel, self).__init__(**kwargs)
+
 
 class MenuItem(Button):
     def __init__(self, **kwargs):
@@ -61,7 +73,6 @@ class MenuItem(Button):
             return
         getattr(RootApp, function_to_call)()
 
-#
 
 class AppActionBar(ActionBar):
     pass
@@ -72,11 +83,9 @@ class ActionMenu(ActionPrevious):
         RootApp.toggle_sidepanel()
 
 class ActionQuit(ActionButton):
-    pass
     def menu(self):
         print 'App quit'
         RootApp.stop()
-
 
 class MainPanel(BoxLayout):
     pass
@@ -84,19 +93,42 @@ class MainPanel(BoxLayout):
 class AppArea(FloatLayout):
     pass
 
-class Page1(FloatLayout):
-    pass
+class Temperature(FloatLayout):
+    def __init__(self,**kwargs):
+        super(Temperature,self).__init__(**kwargs)
+        Clock.schedule_interval(self.update, 0.5)
 
-class Page2(FloatLayout):
-    pass
+    def update(self,dt):
+        self.ids.tempIMG.reload()
 
-class Page3(FloatLayout):
-    pass
 
-class AppButton(Button):
-    nome_bottone = ObjectProperty(None)
-    def app_pushed(self):
-        print self.text, 'button', self.nome_bottone.state
+class Humidity(FloatLayout):
+    def __init__(self,**kwargs):
+        super(Humidity,self).__init__(**kwargs)
+        Clock.schedule_interval(self.update, 0.5)
+
+    def update(self,dt):
+        self.ids.humIMG.reload()
+
+class Settings(FloatLayout):
+    def update(self):
+        global url
+        url = self.ids.url.text
+        global token
+        token = self.ids.token.text
+
+    def default(self):
+        self.ids.url.text = 'https://my-awesome-project-3e36c.firebaseio.com'
+        self.ids.token.text = 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
+
+        global url
+        url = 'https://my-awesome-project-3e36c.firebaseio.com'
+        global token
+        token = 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
+
+
+
+
 
 
 class NavDrawer(NavigationDrawer):
@@ -111,10 +143,11 @@ class NavDrawer(NavigationDrawer):
                 self.state = 'closed'
 
 
-class AndroidApp(App):
+
+
+class HeatMapApp(App):
 
     def build(self):
-
         global RootApp
         RootApp = self
 
@@ -131,32 +164,55 @@ class AndroidApp(App):
         self.navigationdrawer.anim_type = 'slide_above_anim'
         self.navigationdrawer.add_widget(self.main_panel)
 
+        # Event manager update every 20 seconds
+        print 'configure scheduler'
+        self.event = Clock.schedule_interval(self.update, 20)
+
         return self.navigationdrawer
+
+    def update(self,dt):
+        try:
+            print "-----------------"
+            print "updating graph..."
+            print "-----------------"
+            global url
+            global token
+            g = Graphing(url, token)
+            print "generate humidity graph..."
+            g.gen_hum_graph()
+            print 'generate temperature graph...'
+            g.gen_temp_graph()
+            print 'generate completed...'
+
+        except:
+            print '...error cannot generate image...'
+            pass
 
     def toggle_sidepanel(self):
         self.navigationdrawer.toggle_state()
 
-    def on_uno(self):
-        print 'UNO... exec'
-        self._switch_main_page('Page 1', Page1)
+    def on_temp(self):
+        print 'VIEW TEMPERATURE DATA...\n'
+        self._switch_main_page('Temperature', Temperature)
 
-    def on_due(self):
-        print 'DUE... exec'
-        self._switch_main_page('Page 2', Page2)
-    def on_tre(self):
-        print 'TRE... exec'
-        self._switch_main_page('Page 3',  Page3)
+    def on_hum(self):
+        print 'VIEW HUMIDITY DATA...\n'
+        self._switch_main_page('Humidity', Humidity)
+    def on_settings(self):
+        print 'VIEW SETTINGS...\n'
+        self._switch_main_page('Settings',  Settings)
 
     def _switch_main_page(self, key,  panel):
         self.navigationdrawer.close_sidepanel()
         if not SidePanel_AppMenu[key][id_AppMenu_PANEL]:
             SidePanel_AppMenu[key][id_AppMenu_PANEL] = panel()
         main_panel = SidePanel_AppMenu[key][id_AppMenu_PANEL]
-        self.navigationdrawer.remove_widget(self.main_panel)    # FACCIO REMOVE ED ADD perchè la set_main_panel
-        self.navigationdrawer.add_widget(main_panel)            # dà un'eccezione e non ho capito perchè
+        self.navigationdrawer.remove_widget(self.main_panel)
+        self.navigationdrawer.add_widget(main_panel)
         self.main_panel = main_panel
 
 
 
 if __name__ == '__main__':
-    AndroidApp().run()
+    HeatMapApp().run()
+
