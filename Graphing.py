@@ -26,6 +26,7 @@ class Graphing(object):
         f = fb(url,token)
         hum = f.get('/heatmap/hum')
         self.hum_data = np.array(hum)
+        self.url = url
 
         temp = f.get('/heatmap/temp')
         self.temp_data = np.array(temp)
@@ -64,8 +65,8 @@ class Graphing(object):
 
         # Add Title and give it a time stamp
         timenow = strftime("%Y-%m-%d %H:%M:%S", localtime())
-        ax.set_title('Temperature, {}'.format(timenow))
-
+        ax.set_title('Temperature, {}\nOrange tile indicates that the area requires watering'.format(timenow))
+        ax.set(xlabel='url: {}'.format(self.url))
         #plt.show()
         plt.savefig("temp.png")
 
@@ -104,8 +105,8 @@ class Graphing(object):
 
         # Add Title and give it a time stamp
         timenow = strftime("%Y-%m-%d %H:%M:%S", localtime())
-        ax.set_title('Humidity, {}'.format(timenow))
-
+        ax.set_title('Humidity, {}\nOrange tile indicates that the area requires watering'.format(timenow))
+        ax.set(xlabel='url: {}'.format(self.url))
         #plt.show()
         plt.savefig("humidity.png")
 
