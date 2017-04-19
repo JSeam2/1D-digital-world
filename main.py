@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-#
 #-------------------------------------------------------------------------------
+# Class: 16F03
+# Members: Joshia, Blossom, ShiHui, Angelia, Joshua
+#
 # Adapted from Licia Leanza androidApp.py
-# Copyright:   (c) Licia Leanza: 2014
-# Licence:     GPL v2
+#
 #-------------------------------------------------------------------------------
 '''
 Dictionary for menu items. Right is the name of the panel,
@@ -33,13 +35,11 @@ from kivy.uix.actionbar import ActionBar, ActionButton, ActionPrevious
 
 from kivy.clock import Clock
 
-# Uncomment for fixed window size
-#from kivy.core.window import Window
-#from kivy.config import Config
+# Uncomment/comment for fixed/variable window size
+from kivy.config import Config
 
 # Window settings make non-resizable
-#Window.size = (800, 800)
-#Config.set('graphics', 'resizable', False)
+Config.set('graphics', 'resizable', False)
 
 
 #################
@@ -53,6 +53,11 @@ Global Values
 RootApp = None
 url = 'https://my-awesome-project-3e36c.firebaseio.com'
 token = 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
+
+'''
+Various customized layout widgets corresponding to elements
+on heatmapapp.kv
+'''
 
 class SidePanel(BoxLayout):
     def __init__(self, **kwargs):
@@ -93,7 +98,14 @@ class MainPanel(BoxLayout):
 class AppArea(FloatLayout):
     pass
 
+
+'''
+Selectable pages and their corresponding methods
+'''
 class Temperature(FloatLayout):
+    '''
+    Updates temperature heatmap image when a new image is ready
+    '''
     def __init__(self,**kwargs):
         super(Temperature,self).__init__(**kwargs)
         Clock.schedule_interval(self.update, 0.5)
@@ -103,6 +115,9 @@ class Temperature(FloatLayout):
 
 
 class Humidity(FloatLayout):
+    '''
+    Updates humidity heatmap image when a new image is ready
+    '''
     def __init__(self,**kwargs):
         super(Humidity,self).__init__(**kwargs)
         Clock.schedule_interval(self.update, 0.5)
@@ -111,13 +126,22 @@ class Humidity(FloatLayout):
         self.ids.humIMG.reload()
 
 class Settings(FloatLayout):
+    '''
+    Update global token and url variables and offer the possibility of resetting
+    '''
     def update(self):
+        '''
+        Updates the new url and token
+        '''
         global url
         url = self.ids.url.text
         global token
         token = self.ids.token.text
 
     def default(self):
+        '''
+        Resets the data incase mistakes are made
+        '''
         self.ids.url.text = 'https://my-awesome-project-3e36c.firebaseio.com'
         self.ids.token.text = 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
 
@@ -132,6 +156,9 @@ class Settings(FloatLayout):
 
 
 class NavDrawer(NavigationDrawer):
+    '''
+    NavDrawer widget to create the android style menu
+    '''
     def __init__(self, **kwargs):
         super(NavDrawer, self).__init__( **kwargs)
 
@@ -171,10 +198,14 @@ class HeatMapApp(App):
         return self.navigationdrawer
 
     def update(self,dt):
+        '''
+        generates graph. due to outside function call not within clock,
+        there may be some delay when updating images
+        '''
         try:
-            print "-----------------"
+            print "------------------"
             print "updating graph..."
-            print "-----------------"
+            print "------------------"
             global url
             global token
             g = Graphing(url, token)
@@ -182,27 +213,46 @@ class HeatMapApp(App):
             g.gen_hum_graph()
             print 'generate temperature graph...'
             g.gen_temp_graph()
-            print 'generate completed...'
+            print "------------------"
+            print "update complete..."
+            print "------------------"
 
         except:
-            print '...error cannot generate image...'
+            print 'ERRORERRORERRORERRORERRORERRORERROR'
+            print ' ...error cannot generate image...'
+            print 'ERRORERRORERRORERRORERRORERRORERROR'
             pass
 
     def toggle_sidepanel(self):
+        '''
+        self explanatory, toggles the sidepanel
+        '''
         self.navigationdrawer.toggle_state()
 
     def on_temp(self):
+        '''
+        switches to temperature page
+        '''
         print 'VIEW TEMPERATURE DATA...\n'
         self._switch_main_page('Temperature', Temperature)
 
     def on_hum(self):
+        '''
+        switches to humidity page
+        '''
         print 'VIEW HUMIDITY DATA...\n'
         self._switch_main_page('Humidity', Humidity)
     def on_settings(self):
+        '''
+        switches to settings page
+        '''
         print 'VIEW SETTINGS...\n'
         self._switch_main_page('Settings',  Settings)
 
     def _switch_main_page(self, key,  panel):
+        '''
+        Helper function to simplify the creation of page switches
+        '''
         self.navigationdrawer.close_sidepanel()
         if not SidePanel_AppMenu[key][id_AppMenu_PANEL]:
             SidePanel_AppMenu[key][id_AppMenu_PANEL] = panel()

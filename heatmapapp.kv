@@ -34,9 +34,10 @@
 
     AppActionBar:
         size_hint: (1., 0.1)
-
-    Label:
-        text: 'Instructions:\n\n1) Select temperature/humidity to view data\n\n2) Select settings to change database url and tokens to switch between databases.\n\n\nThe heatmaps refreshes every 20 seconds.'
+    Image:
+        source: './assets/bg.png'
+    #Label:
+    #    text: 'Instructions:\n\n1) Select temperature/humidity to view data\n\n2) Select settings to change database url and tokens to switch between databases.\n\n\nThe heatmaps refreshes every 20 seconds.'
 
 <Settings>:
     orientation: 'vertical'
@@ -49,7 +50,7 @@
         cols: 2
 
         Label:
-            text: ''
+            text: 'Open another eBot Firebase with the same structure'
         Label:
             text: ''
         Label:
