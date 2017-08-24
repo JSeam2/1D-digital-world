@@ -51,8 +51,6 @@ from Graphing import Graphing
 Global Values
 '''
 RootApp = None
-url = 'https://my-awesome-project-3e36c.firebaseio.com'
-token = 'AxddRZLLd4QR55sNCMXt832N0v759EvheBnWBshR'
 
 '''
 Various customized layout widgets corresponding to elements
